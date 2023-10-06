@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Подробности проблемы</title>
+</head>
+<body>
+    <h1>Подробности проблемы</h1>
+    <h2>Название: {{ ticket.name }}</h2>
+    <p>Имя оставившего: {{ ticket.creator_name }}</p>
+    <p>Описание: {{ ticket.description }}</p>
+    <p>Дата создания: {{ ticket.created_date }}</p>
+
+    <!-- Форма для редактирования и дополнения текста действий -->
+    <form method="post">
+        <label for="actions">Действия:</label>
+        <textarea id="actions" name="actions" rows="4" cols="50">{{ ticket.actions_taken }}</textarea><br>
+
+        <label for="status">Статус:</label>
+        <select id="status" name="status">
+            <option value="new" {% if ticket.status == "new" %}selected{% endif %}>New</option>
+            <option value="in progress" {% if ticket.status == "in progress" %}selected{% endif %}>In Progress</option>
+            <option value="resolved" {% if ticket.status == "resolved" %}selected{% endif %}>Resolved</option>
+            {% if is_tester_user %}
+                <option value="confirmed" {% if ticket.status == "confirmed" %}selected{% endif %}>Confirmed</option>
+            {% endif %}
+        </select><br>
+
+        <!-- Выпадающий список для переназначения проблемы -->
+        {% if is_tester_user or is_reception_user %}
+            <label for="assigned_user">Переназначить пользователю:</label>
+            <select id="assigned_user" name="assigned_user">
+                <option value="" {% if not ticket.assigned_user %}selected{% endif %}>Не назначено</option>
+                {% for user in reception_users %}
+                    <option value="{{ user.id }}" {% if ticket.assigned_user == user %}selected{% endif %}>{{ user.username }}</option>
+                {% endfor %}
+            </select><br>
+        {% endif %}
+
+        <!-- Скрытое поле для перенаправления -->
+        <input type="hidden" name="next" value="{% url 'ticket_detail' ticket.id %}">
+
+        <!-- Кнопка "Сохранить" -->
+        <button type="submit">Сохранить</button>
+    </form>
+
+    <!-- Кнопка для возврата к списку проблем -->
+    <form method="get" action="{% url 'ticket_list' %}">
+        <button type="submit">Назад к списку проблем</button>
+    </form>
+</body>
+</html>

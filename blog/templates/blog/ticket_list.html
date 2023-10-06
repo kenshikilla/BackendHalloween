@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket List</title>
+</head>
+<body>
+    <h2>Problems list:</h2>
+    <ul>
+        {% for ticket in tickets %}
+            <li>
+                Problem: {{ ticket.name }}<br>
+                Employee Name: {{ ticket.creator_name }}<br>
+                Priority: {{ ticket.priority }}<br>
+                Problem description: {{ ticket.description }}<br>
+                Data of creation: {{ ticket.created_date|date:"Y-m-d" }} {{ ticket.created_date|time:"H:i" }}<br>
+                {% if is_reception_user or is_tester_user %}
+                    {% if ticket.assigned_user %}
+                        Assigned to: {{ ticket.assigned_user.username }}<br>
+                    {% endif %}
+                {% endif %}
+
+                <a href="{% url 'ticket_detail' ticket.id %}">Подробнее</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Create new problem:</h3>
+    <form method="post">
+        {{ form.as_p }}
+        <button type="submit">Create</button>
+    </form>
+
+    <form method="post" action="{% url 'logout' %}">
+        <button type="submit">Log off</button>
+    </form>
+</body>
+</html>
