@@ -19,12 +19,7 @@ def ticket_detail(request, ticket_id):
     if request.method == 'POST':
         actions = request.POST.get('actions', '')
         new_status = request.POST.get('status', '')
-        #Итак, переменная new_assigned_user_id после выполнения этой строки будет содержать идентификатор пользователя,
-        # на которого пользователь пытается переназначить проблему.
-        # Этот идентификатор затем используется для установки значения поля assigned_user модели Ticket,
-        # что позволяет изменить назначение проблемы на другого пользователя.
-    #Если new_assigned_user_id имеет значение None, это означает, что пользователь не выбрал никакого пользователя для переназначения
-        # , и проблема останется назначенной на текущего пользователя
+
         new_assigned_user_id = request.POST.get('assigned_user', None)
 
         if is_tester_user:
@@ -32,17 +27,14 @@ def ticket_detail(request, ticket_id):
                 ticket.delete()
                 return redirect('ticket_list')
             else:
-                # Другие статусы доступны для редактирования всем пользователям
                 ticket.status = new_status
                 ticket.actions_taken = actions
-          #perenazna4enie
             if new_assigned_user_id:
                 new_assigned_user = User.objects.get(id=new_assigned_user_id)
                 ticket.assigned_user = new_assigned_user
                 ticket.save()
 
         elif is_reception_user:
-            # Пользователи из группы "Reception" могут устанавливать только статусы "new", "in progress" и "resolved"
             if new_status in ['new', 'in progress']:
                 ticket.status = new_status
                 ticket.actions_taken = actions
@@ -51,7 +43,6 @@ def ticket_detail(request, ticket_id):
                     ticket.assigned_user = new_assigned_user
                 ticket.save()
             elif new_status == 'resolved' and ticket.status != 'resolved':
-                # Запрет изменения на "resolved", если статус уже "resolved"
                 ticket.status = new_status
                 ticket.assigned_user = None
                 ticket.actions_taken = actions
@@ -104,15 +95,11 @@ def ticket_list(request):
         form = TicketForm()
 
     if is_reception_user or is_tester_user:
-        # Фильтрация проблем в зависимости от роли пользователя
         if is_reception_user:
-            # Пользователи из группы "Reception" видят только те проблемы, которые им были назначены
             tickets = Ticket.objects.filter(assigned_user=request.user)
         elif is_tester_user:
-            # Тестеры видят все проблемы, кроме тех, которые подтверждены
             tickets = Ticket.objects.filter(Q(creator_name=request.user.username) | Q(status='resolved', confirmed=False))
     else:
-        # Другие пользователи видят только те проблемы, которые не подтверждены
         tickets = Ticket.objects.filter(confirmed=False)
 
     return render(request, 'blog/ticket_list.html', {'tickets': tickets, 'form': form, 'is_reception_user': is_reception_user, 'is_tester_user': is_tester_user})

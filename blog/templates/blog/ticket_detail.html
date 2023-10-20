@@ -10,7 +10,6 @@
     <p>Описание: {{ ticket.description }}</p>
     <p>Дата создания: {{ ticket.created_date }}</p>
 
-    <!-- Форма для редактирования и дополнения текста действий -->
     <form method="post">
         <label for="actions">Действия:</label>
         <textarea id="actions" name="actions" rows="4" cols="50">{{ ticket.actions_taken }}</textarea><br>
@@ -36,14 +35,11 @@
             </select><br>
         {% endif %}
 
-        <!-- Скрытое поле для перенаправления -->
         <input type="hidden" name="next" value="{% url 'ticket_detail' ticket.id %}">
 
-        <!-- Кнопка "Сохранить" -->
         <button type="submit">Сохранить</button>
     </form>
 
-    <!-- Кнопка для возврата к списку проблем -->
     <form method="get" action="{% url 'ticket_list' %}">
         <button type="submit">Назад к списку проблем</button>
     </form>

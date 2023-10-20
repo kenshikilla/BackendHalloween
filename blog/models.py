@@ -25,4 +25,4 @@ class Ticket(models.Model):
     actions_taken = models.TextField(blank=True)
     assigned_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='assigned_tickets')
     resolved_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='resolved_tickets')
-    confirmed = models.BooleanField(default=False)  # Поле для статуса "confirmed"
+    confirmed = models.BooleanField(default=False)
